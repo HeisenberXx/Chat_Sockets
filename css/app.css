@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+    Sobrescribe el comportamiento por defecto de DaisyUI.
+    Evita que el navegador reserve espacio para la barra de scroll (scrollbar-gutter)
+    cuando el menú lateral se abre, eliminando así el "espacio en blanco".
+  */
+  :root:has(.drawer-toggle:checked) {
+    scrollbar-gutter: auto;
+  }
+}
+@layer components {
+  .drawer-side > *:not(.drawer-overlay) {
+    /* Usamos una curva de aceleración 'ease-in-out' para un inicio y final suaves. */
+    /* Esta es la propiedad que anima el deslizamiento del panel. */
+    transition: translate 0.4s ease;
+  }
+  .drawer-side {
+    /* Sincronizamos el desvanecimiento del fondo (overlay) y la visibilidad con la misma curva y duración. */
+    /* 'allow-discrete' es clave para que 'visibility' cambie en el momento justo. */
+    transition: opacity 0.3s ease, visibility 0.3s ease-in-out allow-discrete;
+  }
+}
