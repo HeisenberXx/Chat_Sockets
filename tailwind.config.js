@@ -1,18 +1,22 @@
-import daisyui from 'daisyui';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
+    "./src/**/*.{html,js}",
     "./index.html",
-    "./src/**/*.{html,js}", // Escanea todos los archivos .html y .js en la carpeta src
   ],
   theme: {
     extend: {},
   },
   plugins: [
-    daisyui,
+    require('daisyui'),
   ],
+  // daisyUI config (optional - here are the default values)
   daisyui: {
-    themes: ["dracula"], // Asegura que el tema que usas esté aquí
+    themes: ["cupcake", "dark"], // Temas que quieres usar. 'cupcake' se usará por defecto.
+    darkTheme: "dark", // Tema que se usará cuando el sistema operativo esté en modo oscuro.
+    base: true, // aplica estilos base (recomendado)
+    styled: true, // aplica estilos de componentes (recomendado)
+    utils: true, // aplica utilidades responsivas y de modificadores (recomendado)
+    logs: true, // Muestra logs de daisyUI en la consola (opcional)
   },
 }
