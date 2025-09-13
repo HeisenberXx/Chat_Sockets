@@ -36,6 +36,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('chat message', (msg) => {
+    console.log(`Mensaje de ${socket.id}: ${msg}`);
     const user = connectedUsers.get(socket.id);
     io.emit('chat message', { 
       id: socket.id,
