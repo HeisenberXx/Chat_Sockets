@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background-color: rgb(250 250 250 / 0.5);
+  --blue-transparent: #0ea5e917;
+}
+@font-face {
+  font-family: 'Permanent-Marker';
+  src: url('/fonts/Gabarito-VariableFont_wght.ttf') format('TrueType');
+  font-weight: 100 900; /* Peso para este archivo */
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Inclusive-Sans';
+  src: url('/fonts/InclusiveSans-VariableFont_wght.ttf') format('TrueType');
+  font-weight: 100 900; /* Peso para este archivo */
+  font-style: normal;
+}
 @layer base {
   /*
     Sobrescribe el comportamiento por defecto de DaisyUI.
@@ -23,4 +39,58 @@
     /* 'allow-discrete' es clave para que 'visibility' cambie en el momento justo. */
     transition: opacity 0.3s ease, visibility 0.3s ease-in-out allow-discrete;
   }
+
+  .grid-of-inputs {
+    display: grid;
+    grid-template-columns: 1fr minmax(50px, auto); /* La caja de texto toma todo el espacio disponible y el botón se ajusta a su contenido */
+    gap: 0.5rem; /* Espacio entre los elementos */
+    grid-template-rows: 1fr;
+    border: 0.01rem solid;
+    border-radius: 18px;
+    padding: 14px;
+    width: 100%;;
+    max-width: 900px;
+    min-height: 60px;
+    background-color: var(--background-color);
+  }
+  .grid-of-inputs :first-child {
+    width: auto;
+    height: auto; /* Espacio a la derecha del primer elemento */
+    background-color: transparent;
+    border-radius: inherit
+  }
+  #send-icon {
+    width: 20px;
+    height: 20px
+  }
+  .label-send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 14px;
+  }
+  .btn-send{
+    width: 100% !important;
+    height: 100% !important;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    background-color: var(--blue-transparent) !important;
+  }
+  #chat-bubble{
+    max-width: 800px;
+    width: 100%;
+    font-family: 'Inclusive-Sans', sans-serif;
+  }
+  .chat-end .chat-bubble{
+    background-color: #129cd9bf;
+    color: white;
+  }
+
+  h1{
+    font-family: 'Permanent-Marker', serif;
+    font-weight: 800;
+  }
+
 }

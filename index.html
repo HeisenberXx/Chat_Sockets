@@ -14,30 +14,35 @@
 
         <!-- Contenido de la página (Chat) -->
         <div class="drawer-content flex flex-col h-screen">
-            <header class="bg-base-200 p-4 shadow flex items-center gap-4">
+            <header class="bg-zinc-50/50 p-7 flex items-center gap-4">
                 <!-- Botón para abrir/cerrar el drawer en pantallas pequeñas -->
                 <label for="my-drawer-2" class="btn btn-primary drawer-button lg:hidden">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </label>
-                <h1 class="text-2xl font-bold text-center flex-1">Chat Global</h1>
+                <h1 class="text-3xl font-thin text-center flex-1 text-sky-500">Chat Global</h1>
             </header>
 
-            <main id="messages" class="flex-1 p-4 overflow-y-auto bg-base-100">
-                <!-- Los mensajes del chat se agregarán aquí -->
+            <main id="messages" class="flex-1 p-4 overflow-y-auto bg-zinc-50/50 justify-items-center align-ed content-end">
+                <div id="chat-bubble"></div>
             </main>
 
-            <footer class="bg-base-200 p-4">
-                <form id="form" class="flex gap-2">
-                    <input id="input" autocomplete="off" class="input input-bordered flex-1" placeholder="Escribe un mensaje..." />
-                    <button class="btn btn-primary">Enviar</button>
-                </form>
+            <footer class="bg-zinc-50/50 p-4 flex justify-center">
+                <div id="form" class="grid-of-inputs border-zinc-300">
+                    <input id="input" autocomplete="off" class="placeholder:text-base/10" placeholder="Escribe un mensaje..." />
+                    <label for="submit" class="label-send">
+                        <div class="btn-send">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="send-icon" class="icon glyph" fill="#0ea5e9" width="24" height="24" stroke="#000000" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M21.88,4.73,16.2,20.65A2,2,0,0,1,14.3,22h0a2,2,0,0,1-1.9-1.31l-2.12-5.52,1.54-1.54,2.49-2.49a1,1,0,1,0-1.42-1.42l-2.49,2.49L8.82,13.76,3.31,11.63a2,2,0,0,1,0-3.83L19.27,2.12a2,2,0,0,1,2.61,2.61Z" style="fill:#0ea5e9"></path></g></svg>
+                        </div>
+                    </label>
+                    <input placeholder="submit" id="submit" class="hidden">
+                </div>
             </footer>
         </div>
 
         <!-- Contenido del Sidebar -->
-        <div class="drawer-side">
+        <div class="drawer-side bg-zinc-100/95">
             <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
-            <div id="sidebar_container" class="w-80 min-h-full bg-base-200 rounded-br-2xl lg:rounded-br-none">
+            <div id="sidebar-container" class="w-80 min-h-full rounded-br-2xl lg:rounded-br-none">
                 <!-- El contenido de sidebar.html se cargará aquí -->
             </div>
         </div>
@@ -45,17 +50,39 @@
 
     <script type="module">
         import { loadComponent } from '/src/lib/Load.js';
-
+ 
         document.addEventListener('DOMContentLoaded', () => {
-            loadComponent('sidebar_container', '/src/components/sidebar.html');
+            loadComponent('sidebar-container', '/src/components/sidebar.html');
+            loadComponent('chat-bubble', '/src/components/chat.html');
         });
-
-        // --- Lógica del chat (sin cambios) ---
+ 
+        // --- Lógica del chat ---
         const socket = io();
         const form = document.getElementById('form');
         const input = document.getElementById('input');
         const messages = document.getElementById('messages');
-
+        let session = { id: '', username: '' };
+ 
+        //aqui solo se recibe el id y username del usuario actual
+        socket.on('session', (data) => {
+            session = data;
+        });
+        
+        //envia la lista de usuarios conectados al cliente y crea la lista en el sidebar
+        socket.on('users updated', (users) => {
+            const userList = document.getElementById('user-list');
+            if (!userList) return;
+ 
+            userList.innerHTML = ''; // Limpiar lista anterior
+            users.forEach(user => {
+                if (user.id !== session.id) { // No mostrar el usuario actual en la lista
+                    const userItem = document.createElement('li');
+                    userItem.innerHTML = `<a>${user.username}</a>`;
+                    userList.appendChild(userItem);
+                }
+            });
+        });
+ 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (input.value) {
@@ -63,13 +90,15 @@
                 input.value = '';
             }
         });
-
-        socket.on('chat message', (msg) => {
+ 
+        socket.on('chat message', (data) => {
+            const { id, user, msg } = data;
             const item = document.createElement('div');
-            item.className = 'chat chat-start';
+            const isCurrentUser = id === session.id;
+            item.className = isCurrentUser ? 'chat chat-end' : 'chat chat-start';
             
             const avatar = `<div class="chat-image avatar"><div class="w-10 rounded-full"><img alt="Avatar" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" /></div></div>`;
-            const header = `<div class="chat-header">Anónimo <time class="text-xs opacity-50">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time></div>`;
+            const header = `<div class="chat-header">${user} <time class="text-xs opacity-50">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</time></div>`;
             const bubble = `<div class="chat-bubble">${msg}</div>`;
 
             item.innerHTML = avatar + header + bubble;
@@ -77,6 +106,6 @@
             messages.scrollTop = messages.scrollHeight;
         });
     </script>
-
+ 
 </body>
 </html>
