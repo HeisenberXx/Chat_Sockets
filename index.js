@@ -1,8 +1,9 @@
 import express from 'express';
-import { createServer } from 'node:http';
+import { createServer, get } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { Server } from 'socket.io';
+import { saveMessage, getMessages } from './src/data/MessagesHistory.js';
 // import { getMessages } from './src/data/MessagesHistory';
 
 const app = express();
@@ -35,16 +36,23 @@ io.on('connection', (socket) => {
       io.emit('users updated', Array.from(connectedUsers.values()));
     }
   });
-
   socket.on('chat message', (message_info) => {
     const { message, to } = message_info
     const user = connectedUsers.get(socket.id);
+    saveMessage(socket.id, to, message);
+    // const history = getMessages(socket.id, to);
+    // console.log(history)
     io.to(to).emit('chat message', { 
       id: socket.id,
       user: user.username,
       message,
     });
   });
+  socket.on('get history', ({ to }) => {
+    const history = getMessages(socket.id, to);
+    socket.emit('chat history', history);
+  })
+
 });
 
 server.listen(3000, () => {

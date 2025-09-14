@@ -50,7 +50,7 @@
 
     <script type="module">
         import { loadComponent } from '/src/lib/Load.js';
-        import { openChat, CreateChatBubble } from '/src/lib/Messages.js';
+        import { openChat, CreateChatBubble, renderChatHistory } from '/src/lib/Messages.js';
  
         document.addEventListener('DOMContentLoaded', () => {
             loadComponent('sidebar-container', '/src/components/sidebar.html');
@@ -86,7 +86,7 @@
                 }
             });
         });
- 
+        
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             if (input.value) {
@@ -94,7 +94,11 @@
                 input.value = '';
             }
         });
- 
+        
+        socket.on('chat history', (history) => {
+            console.log(history);
+            renderChatHistory(history, socket.id);
+        });
         socket.on('chat message', (data) => {
             const { id, user, message } = data;
             CreateChatBubble(message, session.id === id);
