@@ -50,7 +50,7 @@
 
     <script type="module">
         import { loadComponent } from '/src/lib/Load.js';
-        import { openChat } from '/src/lib/Messages.js';
+        import { openChat, CreateChatBubble } from '/src/lib/Messages.js';
  
         document.addEventListener('DOMContentLoaded', () => {
             loadComponent('sidebar-container', '/src/components/sidebar.html');
@@ -60,7 +60,7 @@
         // --- Lógica del chat ---
         const socket = io();
         const form = document.getElementById('form');
-        const input = document.getElementById('input');
+        const input = document.getElementById('input-message');
         const messages = document.getElementById('messages');
         let session = { id: '', username: '' };
  
@@ -74,14 +74,15 @@
             const userList = document.getElementById('user-list');
             if (!userList) return;
  
-            userList.innerHTML = ''; // Limpiar lista anterior
+            userList.innerHTML = '';
+            // Limpiar lista anterior
             users.forEach(user => {
                 if (user.id !== session.id) { // No mostrar el usuario actual en la lista
                     const userItem = document.createElement('li');
                     userItem.innerHTML = `<a>${user.username}</a>`;
                     userItem.id = user.id;
                     userList.appendChild(userItem);
-                    userList.onclick = (e) => openChat(user, socket);
+                    userItem.onclick = (e) => openChat(user, socket);
                 }
             });
         });
@@ -95,21 +96,8 @@
         });
  
         socket.on('chat message', (data) => {
-            const { id, user, msg } = data;
-            const item = document.createElement('div');
-            const isCurrentUser = id === session.id;
-            item.className = isCurrentUser ? 'chat chat-end' : 'chat chat-start';
-
-            const bubble = document.createElement('div');
-            bubble.className = 'chat-bubble';
-            bubble.textContent = msg;
-
-            item.appendChild(bubble);
-
-            const messagesContainer = document.getElementById('chat-bubble');
-            messagesContainer.appendChild(item);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
+            const { id, user, message } = data;
+            CreateChatBubble(message, session.id === id);
         });
     </script>
  

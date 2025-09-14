@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { Server } from 'socket.io';
+// import { getMessages } from './src/data/MessagesHistory';
 
 const app = express();
 const server = createServer(app);
@@ -16,10 +17,10 @@ app.use(express.static(__dirname));
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
+  console.log('a user connected:', socket.id);
   const username = `Anónimo-${socket.id.slice(0, 4)}`;
   connectedUsers.set(socket.id, { id: socket.id, username });
-  console.log(`${username} (${socket.id}) se ha conectado.`);
-
+      
   // Enviar datos de la sesión al cliente que se conecta
   socket.emit('session', { id: socket.id, username });
 
@@ -35,13 +36,13 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('chat message', (msg) => {
-    console.log(`Mensaje de ${socket.id}: ${msg}`);
+  socket.on('chat message', (message_info) => {
+    const { message, to } = message_info
     const user = connectedUsers.get(socket.id);
-    io.emit('chat message', { 
+    io.to(to).emit('chat message', { 
       id: socket.id,
       user: user.username,
-      msg,
+      message,
     });
   });
 });
