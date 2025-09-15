@@ -13,6 +13,7 @@ const io = new Server(server, {connectionStateRecovery: {}})
 const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.static(join(__dirname, 'public')));
 app.use(express.static(join(__dirname, 'fonts')));
+app.use(express.static(join(__dirname, 'src')));
 app.get('/', (req, res) => {
   res.sendFile(join(__dirname, 'index.html'));
 });
