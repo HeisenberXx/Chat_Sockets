@@ -1,5 +1,4 @@
 import express from 'express';
-import { readFileSync } from 'fs';
 import { createServer, get } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -16,11 +15,9 @@ app.use(express.static(join(__dirname, 'public')));
 app.use(express.static(join(__dirname, 'fonts')));
 app.use(express.static(join(__dirname, 'src')));
 
-// const htmlContent = readFileSync(join(__dirname, 'index.html'), 'utf-8');
+
 app.get('/', (req, res) => {
-  // const serverUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-  // const modifiedHtml = htmlContent.replace('__SOCKET_SERVER_URL__', serverUrl);
-  // res.send(modifiedHtml);
+
 });
 
 
@@ -65,6 +62,7 @@ io.on('connection', (socket) => {
 
 });
 
-server.listen(3000, () => {
-  console.log('server running at http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`server running at http://localhost:${PORT}`);
 });
