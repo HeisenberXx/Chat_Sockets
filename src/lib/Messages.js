@@ -1,10 +1,26 @@
 let currentChatPage = null;
-export function openChat(receivedSocket, socketEmit) {
-    clearNotification(receivedSocket);
-    chatRender(receivedSocket);
-    socketEmit.emit('get history', { to: receivedSocket.id });
-    document.getElementById('btn-send').onclick = (e) => sendMessage(receivedSocket, socketEmit);
+let generalChatObject = {}
+export function openChat(receivedSocket = null, socketEmit = null, chatContext = 'General') {
+    if(chatContext != 'General') {
+        clearNotification(receivedSocket);
+        chatRender(receivedSocket);
+
+        socketEmit.emit('get history', { to: receivedSocket.id });
+        document.getElementById('btn-send').onclick = (e) => sendMessage(receivedSocket, socketEmit);
+        document.getElementById('input-message').onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                sendMessage(receivedSocket, socketEmit);
+            }
+        };
+    } else{
+        generalChatObject = {
+            id: 'General$Chat',
+            username: 'General'
+        }
+        chatRender(generalChatObject);
+    }
 }
+
 
 function chatRender(socket) {
     const chatTitle = document.getElementById('chat-title');
@@ -15,10 +31,11 @@ function chatRender(socket) {
     while (containerMessages.firstChild) {
         containerMessages.removeChild(containerMessages.firstChild);
     }
-    chatTitle.textContent = `Chat con ${socket.username}`;
+    chatTitle.textContent = socket.username != 'General' ? `Chat con ${socket.username}` : 'Chat General'; ;
 }
 
 function sendMessage(receivedSocket, socket) {
+    console.log(receivedSocket, socket)
     const messageIput = document.getElementById('input-message')
     console.log('enviado')
     socket.emit('chat message', { message: messageIput.value, to: receivedSocket.id });
