@@ -28,7 +28,7 @@
 
             <footer class="bg-zinc-50/50 p-4 flex justify-center">
                 <div id="form" class="grid-of-inputs border-zinc-300">
-                    <input id="input-message" autocomplete="off" class="placeholder:text-base/10" placeholder="Escribe un mensaje..." />
+                    <input id="input-message" autocomplete="off" class="placeholder:text-base/10 text-base" placeholder="Escribe un mensaje..." />
                     <label for="submit" class="label-send">
                         <div class="btn-send" id="btn-send" aria-label="send message">
                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="send-icon" class="icon glyph" fill="#0ea5e9" width="24" height="24" stroke="#000000" stroke-width="0.00024000000000000003"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M21.88,4.73,16.2,20.65A2,2,0,0,1,14.3,22h0a2,2,0,0,1-1.9-1.31l-2.12-5.52,1.54-1.54,2.49-2.49a1,1,0,1,0-1.42-1.42l-2.49,2.49L8.82,13.76,3.31,11.63a2,2,0,0,1,0-3.83L19.27,2.12a2,2,0,0,1,2.61,2.61Z" style="fill:#0ea5e9"></path></g></svg>
@@ -50,7 +50,7 @@
 
     <script type="module">
         import { loadComponent } from '/src/lib/Load.js';
-        import { openChat, CreateChatBubble, renderChatHistory } from '/src/lib/Messages.js';
+        import { openChat, CreateChatBubble, renderChatHistory, verifyIfChatIsOpen, notificateMessage } from '/src/lib/Messages.js';
  
         document.addEventListener('DOMContentLoaded', () => {
             loadComponent('sidebar-container', '/src/components/sidebar.html');
@@ -78,10 +78,27 @@
             // Limpiar lista anterior
             users.forEach(user => {
                 if (user.id !== session.id) { // No mostrar el usuario actual en la lista
+                    const notification = document.createElement('span');
+                    notification.id = `${user.id}-notification`;
+                    notification.style.display = 'none';
+                    const usernameText = document.createElement('a');
                     const userItem = document.createElement('li');
-                    userItem.innerHTML = `<a>${user.username}</a>`;
-                    userItem.id = user.id;
+                    usernameText.style.width = '100%';
+                    userItem.style.width = '80%';
+                    userItem.id = `item-${user.id}`;
+                    userItem.style.flexDirection = 'row';
+                    userItem.style.flexWrap = 'nowrap';
+                    userItem.style.borderRadius = '10px';
+
+                    // notification.innerText = '●';
+                    usernameText.innerText = user.username;
+                    userItem.appendChild(usernameText);
+                    userItem.appendChild(notification);
                     userList.appendChild(userItem);
+
+                    // userItem.innerHTML = `<a>${user.username}</a>`;
+                    // userItem.id = user.id;
+                    // userList.appendChild(userItem);
                     userItem.onclick = (e) => openChat(user, socket);
                 }
             });
@@ -96,12 +113,13 @@
         });
         
         socket.on('chat history', (history) => {
-            console.log(history);
             renderChatHistory(history, socket.id);
         });
-        socket.on('chat message', (data) => {
+        //Escucha los mensajes entrantes y los muestra en el chat si esta abierto
+        socket.on('chat_message', (data) => {
             const { id, user, message } = data;
-            CreateChatBubble(message, session.id === id);
+            const isChatOpen = verifyIfChatIsOpen(id);
+            isChatOpen ? CreateChatBubble(message, session.id === id) : notificateMessage(id);
         });
     </script>
  

@@ -31,7 +31,6 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     const user = connectedUsers.get(socket.id);
     if (user) {
-      console.log(`${user.username} (${socket.id}) se ha desconectado.`);
       connectedUsers.delete(socket.id);
       io.emit('users updated', Array.from(connectedUsers.values()));
     }
@@ -42,7 +41,7 @@ io.on('connection', (socket) => {
     saveMessage(socket.id, to, message);
     // const history = getMessages(socket.id, to);
     // console.log(history)
-    io.to(to).emit('chat message', { 
+    io.to(to).emit('chat_message', { 
       id: socket.id,
       user: user.username,
       message,
