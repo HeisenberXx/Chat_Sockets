@@ -11,10 +11,12 @@ const server = createServer(app);
 const io = new Server(server, {connectionStateRecovery: {}})
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+app.get('/', (req, res) => {
+  res.sendFile(join(__dirname, 'index.html'));
+});
 
 // Servir archivos estáticos desde la raíz del proyecto (incluyendo src/, index.html, etc.)
 app.use(express.static(__dirname));
-
 const connectedUsers = new Map();
 
 io.on('connection', (socket) => {
