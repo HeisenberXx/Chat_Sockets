@@ -16,11 +16,11 @@ app.use(express.static(join(__dirname, 'public')));
 app.use(express.static(join(__dirname, 'fonts')));
 app.use(express.static(join(__dirname, 'src')));
 
-const htmlContent = readFileSync(join(__dirname, 'index.html'), 'utf-8');
+// const htmlContent = readFileSync(join(__dirname, 'index.html'), 'utf-8');
 app.get('/', (req, res) => {
-  const serverUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-  const modifiedHtml = htmlContent.replace('__SOCKET_SERVER_URL__', serverUrl);
-  res.send(modifiedHtml);
+  // const serverUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+  // const modifiedHtml = htmlContent.replace('__SOCKET_SERVER_URL__', serverUrl);
+  // res.send(modifiedHtml);
 });
 
 
