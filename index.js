@@ -14,9 +14,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.static(join(__dirname, 'public')));
 app.use(express.static(join(__dirname, 'fonts')));
 app.use(express.static(join(__dirname, 'src')));
+
+const htmlContent = readFileSync(join(__dirname, 'index.html'), 'utf-8');
 app.get('/', (req, res) => {
-  res.sendFile(join(__dirname, 'index.html'));
+  const serverUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+  const modifiedHtml = htmlContent.replace('__SOCKET_SERVER_URL__', JSON.stringify(serverUrl));
+  res.send(modifiedHtml);
 });
+
 
 // Servir archivos estáticos desde la raíz del proyecto (incluyendo src/, index.html, etc.)
 app.use(express.static(__dirname));
