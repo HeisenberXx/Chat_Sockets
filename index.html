@@ -48,6 +48,9 @@
         </div>
     </div>
 
+    <script>
+        const SOCKET_SERVER_URL = '__SOCKET_SERVER_URL__';
+    </script>
     <script type="module">
         import { loadComponent } from '/src/lib/Load.js';
         import { openChat, CreateChatBubble, renderChatHistory, verifyIfChatIsOpen, notificateMessage } from '/src/lib/Messages.js';
@@ -59,7 +62,7 @@
         });
  
         // --- Lógica del chat ---
-        const socket = io({
+        const socket = io(SOCKET_SERVER_URL, {
             transports: ['websocket'],
         });
         const form = document.getElementById('form');
